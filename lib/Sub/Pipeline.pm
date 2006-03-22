@@ -67,7 +67,7 @@ sub new {
   $arg->{on_success} ||= 'throw';
 
   my $self = bless {} => $class;
-  
+
   $self->order(@{ $arg->{order} }) if $arg->{order};
   $self->pipe($_ => $arg->{pipe}{$_}) for (keys %{ $arg->{pipe} });
   $self->on_success($arg->{on_success});
@@ -77,7 +77,8 @@ sub new {
 
 =head2 C< order >
 
-  $pipeline->order(qw(begin check init run end));
+  my @old_order = $pipeline->order;
+  my @new_order = $pipeline->order(qw(begin check init run end));
 
 This method sets the order in which the pipe pieces are run.
 
@@ -128,7 +129,7 @@ my %_behavior = map { $_ => 1 } qw(throw return value);
 sub on_success {
   my $self = shift;
   return $self->{behavior} unless @_;
-  
+
   my ($behavior) = @_;
   Carp::croak "invalid value for on_success" unless $_behavior{ $behavior };
   $self->{behavior} = $behavior;
@@ -209,7 +210,7 @@ in the given package.
 
 sub load_from_package {
   my ($self, $package) = @_;
-  
+
   for my $pipe ($self->order) {
     my $code = $package->can($pipe);
     Carp::croak "package $package has no sub $pipe" unless $code;
@@ -235,7 +236,7 @@ sub save_to_package {
 
   my $installer
     = Sub::Install->can($arg->{reinstall} ? 'reinstall_sub' : 'install_sub');
-  
+
   for my $pipe ($self->order) {
     $installer->({
       into => $package,
@@ -243,7 +244,7 @@ sub save_to_package {
       code => $self->pipe($pipe),
     });
   }
-  
+
   my $on_success = $self->on_success;
   my $caller = sub {
     for my $pipe ($self->order) {
@@ -305,7 +306,7 @@ are passed to C<new>.
 
 sub install_new {
   my ($self, $arg) = @_;
-  
+
   my $install_arg = {};
   $install_arg->{$_} = delete $arg->{$_} for qw(into as reinstall);
 

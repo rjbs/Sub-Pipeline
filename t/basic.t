@@ -2,31 +2,16 @@
 
 use strict;
 use warnings;
+use lib 't/lib';
+
 use Test::More 'no_plan';
 
 BEGIN { use_ok('Sub::Pipeline'); }
 
-my $order;
-sub sample_pipeline {
-  $order = 0;
-  # a stupidly simple pipeline that just runs through some things and succeeds
-  my $sub = Sub::Pipeline->new({
-    order => [ qw(begin check init run end) ],
-    pipe  => {
-      begin => sub { cmp_ok($order++, '==', 0, "begin pipeline runs") },
-      check => sub { cmp_ok($order++, '==', 1, "check pipeline runs") },
-      init  => sub { cmp_ok($order++, '==', 2, "init pipeline runs") },
-      run   => sub { cmp_ok($order++, '==', 3, "run pipeline runs") },
-      end   => sub {
-        cmp_ok($order++, '==', 4, "end pipeline runs");
-        Sub::Pipeline::Success->throw
-      },
-    },
-  });
-}
+use Test::SubPipeline;
 
 {
-  my $sub = sample_pipeline;
+  my $sub = test_pipeline;
   isa_ok($sub, 'Sub::Pipeline', 'sub');
 
   my $code = \&$sub;
@@ -41,7 +26,7 @@ sub sample_pipeline {
 }
 
 {
-  my $sub = sample_pipeline;
+  my $sub = test_pipeline;
 
   $sub->on_success('return');
   my $r = eval { $sub->call; };
@@ -51,12 +36,35 @@ sub sample_pipeline {
 }
 
 {
-  my $sub = sample_pipeline;
-  $sub->pipe(init => sub { $order = -10; die "internal failure" });
+  my ($sub, $value) = test_pipeline;
+  $sub->pipe(init => sub { $value = -10; die "internal failure" });
   eval { $sub->call; };
   my $e = $@;
   ok($e, "sub call threw exception");
   is(ref $e, '', "but it wasn't the success exception");
-  cmp_ok($order, '==', -10, 'and now $order is -10');
+  cmp_ok($value, '==', -10, 'and now $value is -10');
 }
 
+{
+  my $sub = test_pipeline;
+
+  # XXX: inelegant way to test this! -- rjbs, 2006-03-21
+  delete $sub->{pipe}{init};
+
+  eval { $sub->call; };
+  my $e = $@;
+  ok($e, "sub call threw exception");
+  isa_ok($e, 'Sub::Pipeline::PipeMissing');
+}
+
+{
+  my $sub = test_pipeline;
+
+  # XXX: inelegant way to test this! -- rjbs, 2006-03-21
+  delete $sub->{pipe}{init};
+
+  eval { $sub->check; };
+  my $e = $@;
+  ok($e, "sub check threw exception");
+  isa_ok($e, 'Sub::Pipeline::PipeMissing');
+}
