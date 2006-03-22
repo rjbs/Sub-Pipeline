@@ -58,13 +58,13 @@ Valid arguments are:
 
  order - a reference to an array of names of pipes to be run, in order
  pipe  - a reference to a hash of pipe names and implementations (code refs)
- on_success - what to do on success (see 'on_success' below)
+ on_success - what to do on success (default 'value'; see 'on_success' below)
 
 =cut
 
 sub new {
   my ($class, $arg) = @_;
-  $arg->{on_success} ||= 'throw';
+  $arg->{on_success} ||= 'value';
 
   my $self = bless {} => $class;
 
@@ -166,25 +166,38 @@ multiple pipe pieces may be called before this exception is thrown.
 
 =cut
 
-sub call {
-  my $self = shift;
+sub _call_parts {
+  my ($self, $order, $on_success, $get_part, $arg) = @_;
 
-  for my $pipe ($self->order) {
-    my $code = $self->pipe($pipe);
+  push @$arg, {}; # notes
+
+  for my $pipe (@$order) {
+    my $code = $get_part->($pipe);
     unless ((ref $code eq 'CODE') or overload::Method($code, '&{}')) {
       Sub::Pipeline::PipeMissing->throw(pipe => $pipe);
     }
-    eval { $code->(@_) };
+    eval { $code->(@$arg) };
     next unless $@;
     if (my $e = Exception::Class->caught('Sub::Pipeline::Success')) {
-      return $e if $self->on_success eq 'return';
-      return $e->value if $self->on_success eq 'value';
-      $e->rethrow if $self->on_success eq 'throw';
-      die "unknown on_success behavior: " . $self->on_success;
+      return $e if $on_success eq 'return';
+      return $e->value if $on_success eq 'value';
+      $e->rethrow if $on_success eq 'throw';
+      die "unknown on_success behavior: " . $on_success;
     } else {
       die $@;
     }
   }
+}
+
+sub call {
+  my $self = shift;
+
+  $self->_call_parts(
+    [ $self->order ],
+    $self->on_success,
+    sub { $self->pipe($_[0]) },
+    \@_
+  );
 }
 
 =head2 C< as_code >
@@ -246,23 +259,14 @@ sub save_to_package {
   }
 
   my $on_success = $self->on_success;
+
   my $caller = sub {
-    for my $pipe ($self->order) {
-      my $code = $package->can($pipe);
-      unless ((ref $code eq 'CODE') or overload::Method($code, '&{}')) {
-        Sub::Pipeline::PipeMissing->throw(pipe => $pipe);
-      }
-      eval { $code->(@_) };
-      next unless $@;
-      if (my $e = Exception::Class->caught('Sub::Pipeline::Success')) {
-        return $e if $on_success eq 'return';
-        return $e->value if $on_success eq 'value';
-        $e->rethrow if $on_success eq 'throw';
-        die "unknown on_success behavior: " . $on_success;
-      } else {
-        die $@;
-      }
-    }
+    $self->_call_parts(
+      [ $self->order ],
+      $self->on_success,
+      $package->can($_[0]),
+      \@_,
+    );
   };
 
   $installer->({ into => $package, as => 'call', code => $caller });
@@ -317,6 +321,33 @@ use overload
   '&{}'    => 'as_code',
   fallback => 1
 ;
+
+use Sub::Exporter -setup => {
+  groups     => { class => \&_class_generator },
+  collectors => [ order => sub { ref $_[0] eq 'ARRAY' } ],
+};
+
+sub _class_generator {
+  my ($class, $name, $arg, $col) = @_;
+
+  my @order = @{ $col->{order} };
+  
+  my $order_acc = sub { return @_ ? (@order = @_) : @order; };
+  my $caller    = sub {
+    my ($self) = @_;
+    $class->_call_parts(
+      [ $order_acc->() ],
+      'return', # make configurable
+      sub { $self->can($_[0]) },
+      \@_,
+    );
+  };
+
+  return {
+    order => $order_acc,
+    call  => $caller,
+  };
+}
 
 =head1 DIAGNOSTICS
 

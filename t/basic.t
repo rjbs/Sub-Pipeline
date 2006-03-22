@@ -13,16 +13,23 @@ use Test::SubPipeline;
 {
   my $sub = test_pipeline;
   isa_ok($sub, 'Sub::Pipeline', 'sub');
+  $sub->on_success('throw');
 
   my $code = \&$sub;
 
   isa_ok($code, 'CODE', "referenced code dereference of sub");
 
-  {
-    eval { $code->() };
-    my $e = $@;
-    isa_ok($e, 'Sub::Pipeline::Success');
-  }
+  eval { $code->() };
+  isa_ok($@, 'Sub::Pipeline::Success');
+}
+
+{
+  my $sub = test_pipeline;
+  $sub->on_success('throw');
+
+  my $r = eval { $sub->call; };
+
+  isa_ok($@, 'Sub::Pipeline::Success', 'thrown exception');
 }
 
 {
@@ -32,7 +39,6 @@ use Test::SubPipeline;
   my $r = eval { $sub->call; };
   ok( !$@, "no exception thrown with 'return' behavior on");
   isa_ok($r, 'Sub::Pipeline::Success', 'return value');
-  $sub->on_success('throw');
 }
 
 {
