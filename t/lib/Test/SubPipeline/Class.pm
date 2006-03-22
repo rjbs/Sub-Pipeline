@@ -23,6 +23,8 @@ sub third {
 
   die unless $arg->{first} and $arg->{second};
   $arg->{third} = 3;
+
+  Sub::Pipeline::Success->throw(value => "OK!!");
 }
 
 1;

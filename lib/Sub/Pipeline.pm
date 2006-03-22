@@ -337,7 +337,7 @@ sub _class_generator {
     my ($self) = @_;
     $class->_call_parts(
       [ $order_acc->() ],
-      'return', # make configurable
+      'value', # make configurable
       sub { $self->can($_[0]) },
       \@_,
     );
