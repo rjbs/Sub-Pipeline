@@ -6,9 +6,11 @@ use lib 't/lib';
 
 use Test::More tests => 7;
 
-BEGIN { use_ok('Sub::Pipeline'); }
-
-BEGIN { use_ok("Test::SubPipeline::Class"); }
+BEGIN {
+  use_ok('Sub::Pipeline');
+  use_ok("Test::SubPipeline::Class");
+  use_ok("Test::SubPipeline::Subclass");
+}
 
 {
   my $data = {};
@@ -23,8 +25,6 @@ BEGIN { use_ok("Test::SubPipeline::Class"); }
 
   is($v, "OK!!", "correct return");
 }
-
-BEGIN { use_ok("Test::SubPipeline::Subclass"); }
 
 {
   my $data = {};
