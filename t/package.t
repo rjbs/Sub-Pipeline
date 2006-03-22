@@ -16,9 +16,8 @@ use Test::SubPipeline::PipePkg;
 
   local $Test::SubPipeline::PipePkg::value = 0;
 
-  eval { $sub->call };
-  my $e = $@;
-  isa_ok($e, 'Sub::Pipeline::Success');
+  my $r = eval { $sub->call };
+  is($r, 5, 'correct return value');
 
   is($Test::SubPipeline::PipePkg::value, 5, "variable changed by pipe");
 }
