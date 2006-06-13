@@ -12,13 +12,13 @@ Sub::Pipeline - subs composed of sequential pieces
 
 =head1 VERSION
 
-version 0.03
+version 0.030
 
  $Id$
 
 =cut
 
-our $VERSION = '0.03';
+our $VERSION = '0.030';
 
 =head1 SYNOPSIS
 
@@ -50,7 +50,7 @@ early successful return.
 
 =head1 METHODS
 
-=head2 C< new >
+=head2 new
 
 This method constructs and initializes a new Sub::Pipeline.
 
@@ -75,7 +75,7 @@ sub new {
   return $self;
 }
 
-=head2 C< order >
+=head2 order
 
   my @old_order = $pipeline->order;
   my @new_order = $pipeline->order(qw(begin check init run end));
@@ -92,7 +92,7 @@ sub order {
   return @_;
 }
 
-=head2 C< pipe >
+=head2 pipe
 
   my $code = $pipeline->pipe($name);
 
@@ -109,7 +109,7 @@ sub pipe {
   $self->{pipe}{$name} = $code;
 }
 
-=head2 C< on_success >
+=head2 on_success
 
   $pipeline->on_success('throw');
 
@@ -135,7 +135,7 @@ sub on_success {
   $self->{behavior} = $behavior;
 }
 
-=head2 C< check >
+=head2 check
 
 This method checks whether the pipe is complete and intact.  If any pipe piece
 is missing, a Sub::Pipeline::PipeMissing exception is thrown.  Its C<pipe>
@@ -154,7 +154,7 @@ sub check {
   return 1;
 }
 
-=head2 C< call >
+=head2 call
 
 This method calls each piece of the pipeline in order.  Non-success exceptions
 are rethrown.  Success exceptions are handled according to the defined
@@ -200,7 +200,7 @@ sub call {
   );
 }
 
-=head2 C< as_code >
+=head2 as_code
 
 This method returns a code reference which, if called, is equivalent to calling
 the pipeline's C<call> method.
@@ -212,7 +212,7 @@ sub as_code {
   sub { $self->call(@_) };
 }
 
-=head2 C< load_from_package >
+=head2 load_from_package
 
   $pipeline->load_from_package($package_name);
 
@@ -231,7 +231,7 @@ sub load_from_package {
   }
 }
 
-=head2 C< save_to_package >
+=head2 save_to_package
 
   $pipeline->save_to_package($package_name, \%arg);
 
@@ -272,7 +272,7 @@ sub save_to_package {
   $installer->({ into => $package, as => 'call', code => $caller });
 }
 
-=head2 C< install_pipeline >
+=head2 install_pipeline
 
   $pipeline->install_pipeline({ into => $package, as => $method_name });
 
@@ -298,7 +298,7 @@ sub install_pipeline {
   });
 }
 
-=head2 C< install_new >
+=head2 install_new
 
   Sub::Pipeline->install_new(\%arg);
 
