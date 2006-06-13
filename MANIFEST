@@ -1,11 +1,18 @@
 Changes
-MANIFEST
-META.yml # Will be created by "make dist"
-Makefile.PL
-README
 lib/Sub/Pipeline.pm
+Makefile.PL
+MANIFEST
+META.yml			# Will be created by "make dist"
+README
 t/00-load.t
 t/basic.t
+t/class.t
 t/install.t
+t/lib/Test/SubPipeline.pm
+t/lib/Test/SubPipeline/Class.pm
+t/lib/Test/SubPipeline/PipePkg.pm
+t/lib/Test/SubPipeline/Subclass.pm
+t/package.t
 t/pod-coverage.t
 t/pod.t
+t/value.t
