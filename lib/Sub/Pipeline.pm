@@ -12,13 +12,13 @@ Sub::Pipeline - subs composed of sequential pieces
 
 =head1 VERSION
 
-version 0.030
+version 0.001
 
  $Id$
 
 =cut
 
-our $VERSION = '0.030';
+our $VERSION = '0.001';
 
 =head1 SYNOPSIS
 
@@ -395,7 +395,7 @@ changes.
 
 =head1 COPYRIGHT
 
-Copyright 2005 Ricardo Signes, All Rights Reserved.
+Copyright 2005-2006 Ricardo Signes, All Rights Reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
