@@ -9,6 +9,7 @@ WriteMakefile(
     ABSTRACT_FROM       => 'lib/Sub/Pipeline.pm',
     PL_FILES            => {},
     PREREQ_PM => {
+        'Exception::Class' => 1.22,
         'Test::More' => 0,
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
