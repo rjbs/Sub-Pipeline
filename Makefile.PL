@@ -7,6 +7,7 @@ WriteMakefile(
     AUTHOR              => 'Ricardo Signes <rjbs@cpan.org>',
     VERSION_FROM        => 'lib/Sub/Pipeline.pm',
     ABSTRACT_FROM       => 'lib/Sub/Pipeline.pm',
+    LICENSE             => 'perl',
     PL_FILES            => {},
     PREREQ_PM => {
         'Exception::Class' => 1.22,
