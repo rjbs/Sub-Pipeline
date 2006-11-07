@@ -16,3 +16,4 @@ t/package.t
 t/pod-coverage.t
 t/pod.t
 t/value.t
+t/perl-critic.t
