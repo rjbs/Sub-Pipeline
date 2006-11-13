@@ -12,13 +12,13 @@ Sub::Pipeline - subs composed of sequential pieces
 
 =head1 VERSION
 
-version 0.001
+version 0.010
 
  $Id$
 
 =cut
 
-our $VERSION = '0.001';
+our $VERSION = '0.010';
 
 =head1 SYNOPSIS
 
@@ -102,7 +102,7 @@ This method sets the named pipe piece to the given code reference.
 
 =cut
 
-sub pipe {
+sub pipe { ## no critic Homonym
   my ($self, $name, $code) = @_;
   return $self->{pipe}{$name} if @_ == 2;
   Carp::croak "pipe piece must be a code reference" unless ref $code eq 'CODE';
@@ -182,9 +182,9 @@ sub _call_parts {
       return $e if $on_success eq 'return';
       return $e->value if $on_success eq 'value';
       $e->rethrow if $on_success eq 'throw';
-      die "unknown on_success behavior: " . $on_success;
+      Carp::confess "unknown on_success behavior: " . $on_success;
     } else {
-      die $@;
+      Carp::cluck $@;
     }
   }
 }
