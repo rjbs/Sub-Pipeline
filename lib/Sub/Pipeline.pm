@@ -4,6 +4,7 @@ use warnings;
 use strict;
 
 use Carp ();
+use Params::Util qw(_CODELIKE);
 use Sub::Install;
 
 =head1 NAME
@@ -164,19 +165,24 @@ multiple pipe pieces may be called before this exception is thrown.
 
 =cut
 
+sub _initial_state {
+  my ($self) = @_;
+  return {};
+}
+
 sub _call_parts {
   my ($self, $order, $on_success, $get_part, $arg) = @_;
 
-  push @$arg, {}; # notes
+  push @$arg, $self->_initial_state;
 
   for my $pipe (@$order) {
     my $code = $get_part->($pipe);
-    unless ((ref $code eq 'CODE') or overload::Method($code, '&{}')) {
+    unless (_CODELIKE($code)) {
       Sub::Pipeline::PipeMissing->throw(pipe => $pipe);
     }
     eval { $code->(@$arg) };
     next unless $@;
-    if (my $e = Exception::Class->caught('Sub::Pipeline::Success')) {
+    if (my $e = Sub::Pipeline::Success->caught) {
       return $e if $on_success eq 'return';
       return $e->value if $on_success eq 'value';
       $e->rethrow if $on_success eq 'throw';

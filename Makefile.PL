@@ -11,8 +11,10 @@ WriteMakefile(
     PL_FILES            => {},
     PREREQ_PM => {
         'Exception::Class' => 1.22,
+        'Params::Util'     => 0.22, # most working _CODELIKE
+        'Sub::Install'     => 0,    # minimum required version unknown
+        'Sub::Exporter'    => 0.95, # original reasoning unknown
         'Test::More'       => 0,
-        'Sub::Exporter'    => 0.95,
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean               => { FILES => 'Sub-Pipeline-* cover_db' },
