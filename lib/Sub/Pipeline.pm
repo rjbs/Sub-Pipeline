@@ -14,8 +14,6 @@ Sub::Pipeline - subs composed of sequential pieces
 
 version 0.010
 
- $Id$
-
 =cut
 
 our $VERSION = '0.010';
