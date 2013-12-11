@@ -1,23 +1,11 @@
-package Sub::Pipeline;
-
-use warnings;
 use strict;
+use warnings;
+package Sub::Pipeline;
+# ABSTRACT: subs composed of sequential pieces
 
 use Carp ();
-use Params::Util qw(_CODELIKE);
+use Params::Util 0.22 qw(_CODELIKE);
 use Sub::Install;
-
-=head1 NAME
-
-Sub::Pipeline - subs composed of sequential pieces
-
-=head1 VERSION
-
-version 0.010
-
-=cut
-
-our $VERSION = '0.010';
 
 =head1 SYNOPSIS
 
@@ -47,9 +35,7 @@ This module makes it easy to construct routines out of smaller routines which
 can be swapped in and out, have their exception handling altered, or cause
 early successful return.
 
-=head1 METHODS
-
-=head2 new
+=method new
 
 This method constructs and initializes a new Sub::Pipeline.
 
@@ -74,7 +60,7 @@ sub new {
   return $self;
 }
 
-=head2 order
+=method order
 
   my @old_order = $pipeline->order;
   my @new_order = $pipeline->order(qw(begin check init run end));
@@ -91,7 +77,7 @@ sub order {
   return @_;
 }
 
-=head2 pipe
+=method pipe
 
   my $code = $pipeline->pipe($name);
 
@@ -108,7 +94,7 @@ sub pipe { ## no critic Homonym
   $self->{pipe}{$name} = $code;
 }
 
-=head2 on_success
+=method on_success
 
   $pipeline->on_success('throw');
 
@@ -134,7 +120,7 @@ sub on_success {
   $self->{behavior} = $behavior;
 }
 
-=head2 check
+=method check
 
 This method checks whether the pipe is complete and intact.  If any pipe piece
 is missing, a Sub::Pipeline::PipeMissing exception is thrown.  Its C<pipe>
@@ -153,7 +139,7 @@ sub check {
   return 1;
 }
 
-=head2 call
+=method call
 
 This method calls each piece of the pipeline in order.  Non-success exceptions
 are rethrown.  Success exceptions are handled according to the defined
@@ -204,7 +190,7 @@ sub call {
   );
 }
 
-=head2 as_code
+=method as_code
 
 This method returns a code reference which, if called, is equivalent to calling
 the pipeline's C<call> method.
@@ -216,7 +202,7 @@ sub as_code {
   sub { $self->call(@_) };
 }
 
-=head2 load_from_package
+=method load_from_package
 
   $pipeline->load_from_package($package_name);
 
@@ -235,7 +221,7 @@ sub load_from_package {
   }
 }
 
-=head2 save_to_package
+=method save_to_package
 
   $pipeline->save_to_package($package_name, \%arg);
 
@@ -276,7 +262,7 @@ sub save_to_package {
   $installer->({ into => $package, as => 'call', code => $caller });
 }
 
-=head2 install_pipeline
+=method install_pipeline
 
   $pipeline->install_pipeline({ into => $package, as => $method_name });
 
@@ -302,7 +288,7 @@ sub install_pipeline {
   });
 }
 
-=head2 install_new
+=method install_new
 
   Sub::Pipeline->install_new(\%arg);
 
@@ -326,7 +312,7 @@ use overload
   fallback => 1
 ;
 
-use Sub::Exporter -setup => {
+use Sub::Exporter 0.95 -setup => {
   groups     => { class => \&_class_generator },
   collectors => [ order => sub { ref $_[0] eq 'ARRAY' } ],
 };
@@ -373,36 +359,15 @@ listed in the pipeline's calling order is undefined or not callable.
 
 =cut
 
-use Exception::Class (
+use Exception::Class 1.22 (
   'Sub::Pipeline::Success',     { fields => [qw(value)] },
   'Sub::Pipeline::PipeMissing', { fields => [qw(pipe) ] },
 );
 
 =head1 TODO
 
-=over
-
+=for :list
 =item * B<urgent>: supply a method for passing data between pipeline segments
-
-=back
-
-=head1 AUTHOR
-
-Ricardo Signes, C<< <rjbs@cpan.org> >>
-
-=head1 BUGS
-
-Please report any bugs or feature requests to C<bug-sub-pipeline@rt.cpan.org>,
-or through the web interface at L<http://rt.cpan.org>.  I will be notified, and
-then you'll automatically be notified of progress on your bug as I make
-changes.
-
-=head1 COPYRIGHT
-
-Copyright 2005-2006 Ricardo Signes, All Rights Reserved.
-
-This program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
 
 =cut
 

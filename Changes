@@ -1,5 +1,8 @@
 Revision history for Sub-Pipeline
 
+{{$NEXT}}
+        update repository data
+
 0.010   2006-11-13
         packaging improvements
         more stack tracing on weird errors
